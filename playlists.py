@@ -15,8 +15,36 @@ sp = spotipy.Spotify(auth_manager=auth)
 
 # search
 artist_name = input("Enter artist name: ")
-results = sp.search(q='artist:' + artist_name, type='artist')
-artist_id = results['artists']['items'][0]['id']
+artists = []
+results = sp.search(q='artist:' + artist_name, type='artist', limit=50)
+artists.extend(results['artists']['items'])
+
+# pagination to get all results
+while results['artists']['next']:
+    results = sp.next(results['artists'])
+    artists.extend(results['items'])
+
+# show list of found artists
+if not artists:
+    print("No artists found with that name.")
+    exit()
+
+print(f"\nFound {len(artists)} artists:")
+for i, artist in enumerate(artists, 1):
+    print(f"{i}. {artist['name']}")
+
+# select artist
+while True:
+    try:
+        selection = int(input(f"\nSelect artist number (1-{len(artists)}): "))
+        if 1 <= selection <= len(artists):
+            artist_id = artists[selection-1]['id']
+            artist_name = artists[selection-1]['name']
+            break
+        else:
+            print("Please select a valid number.")
+    except ValueError:
+        print("Please enter a valid number.")
 
 # get albums
 albums = sp.artist_albums(artist_id, album_type='album', limit=50)
