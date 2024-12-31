@@ -2,6 +2,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 import os
+import time
 
 load_dotenv()
 
@@ -22,11 +23,13 @@ artists.extend(results['artists']['items'])
 # pagination to get all results
 while results['artists']['next']:
     results = sp.next(results['artists'])
-    artists.extend(results['items'])
+    artists.extend(results['artists']['items'])
 
 # show list of found artists
 if not artists:
     print("No artists found with that name.")
+    print("Exiting in 30 seconds...")
+    time.sleep(30)  # wait for 30 seconds before exiting
     exit()
 
 print(f"\nFound {len(artists)} artists:")
