@@ -88,8 +88,11 @@ class SpotifyClient:
                 self.logger.warning("Artist has no Spotify images; skipping playlist cover upload.")
                 return False, "Artist has no Spotify images available."
 
-            # Try smaller images first to improve odds of meeting Spotify size limits.
-            sorted_images = sorted(images, key=lambda img: _safe_int(img.get("height")))
+            # Try largest images first for best cover quality; fall back to smaller
+            # if a 640px image exceeds Spotify's 256KB upload cap.
+            sorted_images = sorted(
+                images, key=lambda img: _safe_int(img.get("height")), reverse=True
+            )
             for image in sorted_images:
                 image_url = image.get("url")
                 if not image_url:
